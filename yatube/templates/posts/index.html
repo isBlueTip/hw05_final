@@ -1,0 +1,23 @@
+<!-- templates/posts/index.html -->
+
+{% extends 'base.html' %}
+{% block title %}Последние обновления на сайте{% endblock %}
+{% load cache %}
+
+{% block content %}
+  {% cache 20 index_page page_obj.number %}
+  <!-- класс py-5 создает отступы сверху и снизу блока -->
+  <div class="container py-5">
+    {% for post in page_obj %}
+      {% include 'includes/user_article.html' %}
+  <!--      check if there is a group related to the post-->
+      {% if post.group.slug != NULL %}
+        <a href="{% url 'posts:group_list' post.group.slug %}">Все записи группы</a>
+      {% endif %}
+  <!--      no line under the last post-->
+      {% if not forloop.last %}<hr>{% endif %}
+    {% endfor %}
+    {% endcache %}
+    {% include 'posts/includes/paginator.html' %}
+  </div>
+{% endblock %}
