@@ -1,6 +1,5 @@
 import tempfile
 import shutil
-from time import sleep
 
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -27,7 +26,7 @@ class PostsViewsTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        small_gif = (
+        cls.small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x02\x00'
             b'\x01\x00\x80\x00\x00\x00\x00\x00'
             b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
@@ -35,9 +34,9 @@ class PostsViewsTests(TestCase):
             b'\x02\x00\x01\x00\x00\x02\x02\x0C'
             b'\x0A\x00\x3B'
         )
-        uploaded = SimpleUploadedFile(
+        cls.uploaded = SimpleUploadedFile(
             name='small.gif',
-            content=small_gif,
+            content=cls.small_gif,
             content_type='image/gif'
         )
         cls.user_1 = User.objects.create(username='Nikitka')
@@ -53,7 +52,7 @@ class PostsViewsTests(TestCase):
             text='Текст поста чтоб подлиннее',
             author=cls.user_1,
             group=cls.group_1,
-            image=uploaded,
+            image=cls.uploaded,
         )
 
     @classmethod
@@ -103,6 +102,28 @@ class PostsViewsTests(TestCase):
             with self.subTest(value=value):
                 form_field = response.context['form'].fields[value]
                 self.assertIsInstance(form_field, expected)
+
+    def test_create_post_page_creates_new_DB_instance(self):
+        """Checking if POST method for posts:post_create creates
+        new database instance."""
+
+        data = {
+            'text': 'Текст поста чтоб подлиннее',
+            'group': 1,
+            'image': PostsViewsTests.small_gif,
+        }
+
+        num_of_posts = Post.objects.count()
+        response = self.authorised_client_1.post(
+            reverse('posts:post_create'),
+            data=data,
+            follow=True,
+        )
+
+        logging.debug(response.status_code)
+        logging.debug(response)
+
+        self.assertEqual(Post.objects.count(), num_of_posts + 1)
 
     def test_edit_post_page_show_correct_context(self):
         """Checking if posts:post_edit is rendered with correct context."""
