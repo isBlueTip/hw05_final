@@ -1,10 +1,15 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Post, Group, User
+from .models import Post, Group, User, Follow
 from .forms import PostForm, CommentForm
 
 POSTS_DSPL = 10
+
+import logging  # TODO delete logger before final commit
+logging.basicConfig(level=logging.DEBUG,
+                    filename='views.log',
+                    format='%(asctime)s | %(levelname)s | %(message)s')
 
 
 def index(request):
@@ -43,10 +48,19 @@ def profile(request, username):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     title = ('Профиль пользователя ' + str(author.get_full_name()))
+    current_user = User.objects.get(username=request.user)
+    follow = Follow.objects.filter(user=current_user).filter(author=author)
+    logging.debug(follow)
+    if Follow.objects.filter(user=current_user).filter(author=author):
+        following = True
+    else:
+        following = False
+    logging.debug(following)
     context = {'title': title,
                'author': author,
                'posts': posts,
                'page_obj': page_obj,
+               'following': following,
                }
     return render(request, template, context)
 
@@ -124,3 +138,41 @@ def add_comment(request, post_id):
         comment.post = post
         comment.save()
         return redirect('posts:post_detail', post_id=post_id)
+
+
+@login_required
+def follow_index(request):
+    # user = request.user
+    # информация о текущем пользователе доступна в переменной request.user
+    pass
+    # context = {}
+    # return render(request, 'posts/follow.html', context)
+
+
+@login_required
+def profile_follow(request, username):
+    current_author = User.objects.get(username=username)
+    logging.debug(f'current author = {current_author}')
+    logging.debug(type(current_author))
+
+    current_user = User.objects.get(username=request.user)
+    logging.debug(f'current user = {current_user}')
+    logging.debug(type(current_user))
+    Follow.objects.create(
+        user=current_user,
+        author=User.objects.get(username=username),
+    )
+    return redirect('posts:profile', username=username)
+
+
+@login_required
+def profile_unfollow(request, username):
+    current_author = User.objects.get(username=username)
+    logging.debug(f'current author = {current_author}')
+    logging.debug(type(current_author))
+
+    current_user = User.objects.get(username=request.user)
+    logging.debug(f'current user = {current_user}')
+    logging.debug(type(current_user))
+
+    return redirect('posts:profile', username=username)
