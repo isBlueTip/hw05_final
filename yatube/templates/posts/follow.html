@@ -5,7 +5,7 @@
 {% load cache %}
 
 {% block content %}
-  {% cache 20 index_page page_obj.number %}
+  {% cache 20 follow_page page_obj.number %}
   {% include 'posts/includes/switcher.html' %}
   <!-- класс py-5 создает отступы сверху и снизу блока -->
   <div class="container py-5">

@@ -114,14 +114,11 @@ class PostsViewsTests(TestCase):
         }
 
         num_of_posts = Post.objects.count()
-        response = self.authorised_client_1.post(
+        self.authorised_client_1.post(
             reverse('posts:post_create'),
             data=data,
             follow=True,
         )
-
-        logging.debug(response.status_code)
-        logging.debug(response)
 
         self.assertEqual(Post.objects.count(), num_of_posts + 1)
 

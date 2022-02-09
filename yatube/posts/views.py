@@ -48,14 +48,14 @@ def profile(request, username):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     title = ('Профиль пользователя ' + str(author.get_full_name()))
-    current_user = User.objects.get(username=request.user)
-    follow = Follow.objects.filter(user=current_user).filter(author=author)
-    logging.debug(follow)
+    try:
+        current_user = User.objects.get(username=request.user)
+    except User.DoesNotExist:
+        current_user = None
     if Follow.objects.filter(user=current_user, author=author):
         following = True
     else:
         following = False
-    logging.debug(following)
     context = {'title': title,
                'author': author,
                'posts': posts,
@@ -68,7 +68,7 @@ def profile(request, username):
 def post_detail(request, post_id):
     template = 'posts/post_detail.html'
     post = get_object_or_404(Post, pk=post_id)
-    form = CommentForm
+    form = CommentForm()
     title = 'Пост ' + post.text[:30]
     comments = post.comments.all()
     context = {
@@ -164,11 +164,13 @@ def profile_follow(request, username):
     # logging.debug(f'current user = {str(request.user)}')
     # logging.debug(f'current author = {username}')
     # logging.debug(f'current author = {type(username)}')
-    if username != str(request.user):
-        current_user = User.objects.get(username=request.user)
+    current_user = User.objects.get(username=request.user)
+    author = get_object_or_404(User, username=username)
+    if (username != str(request.user)
+            and not(Follow.objects.filter(user=current_user, author=author))):
         Follow.objects.create(
             user=current_user,
-            author=User.objects.get(username=username),
+            author=author,
         )
     return redirect('posts:profile', username=username)
 
