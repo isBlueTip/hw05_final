@@ -51,7 +51,7 @@ def profile(request, username):
     current_user = User.objects.get(username=request.user)
     follow = Follow.objects.filter(user=current_user).filter(author=author)
     logging.debug(follow)
-    if Follow.objects.filter(user=current_user).filter(author=author):
+    if Follow.objects.filter(user=current_user, author=author):
         following = True
     else:
         following = False
@@ -142,37 +142,41 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    # user = request.user
-    # информация о текущем пользователе доступна в переменной request.user
-    pass
-    # context = {}
-    # return render(request, 'posts/follow.html', context)
+    template = 'posts/follow.html'
+    title = 'Посты любимых авторов'
+    current_user_pk = User.objects.get(username=request.user).pk
+    followings = Follow.objects.filter(user=current_user_pk)
+    author_list = followings.values_list('author', flat=True)
+    posts = Post.objects.filter(author__in=author_list)
+    paginator = Paginator(posts, POSTS_DSPL)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'title': title,
+        'page_obj': page_obj,
+    }
+    return render(request, template, context)
 
 
 @login_required
 def profile_follow(request, username):
-    current_author = User.objects.get(username=username)
-    logging.debug(f'current author = {current_author}')
-    logging.debug(type(current_author))
-
-    current_user = User.objects.get(username=request.user)
-    logging.debug(f'current user = {current_user}')
-    logging.debug(type(current_user))
-    Follow.objects.create(
-        user=current_user,
-        author=User.objects.get(username=username),
-    )
+    # logging.debug(f'current user = {request.user}')
+    # logging.debug(f'current user = {str(request.user)}')
+    # logging.debug(f'current author = {username}')
+    # logging.debug(f'current author = {type(username)}')
+    if username != str(request.user):
+        current_user = User.objects.get(username=request.user)
+        Follow.objects.create(
+            user=current_user,
+            author=User.objects.get(username=username),
+        )
     return redirect('posts:profile', username=username)
 
 
 @login_required
 def profile_unfollow(request, username):
     current_author = User.objects.get(username=username)
-    logging.debug(f'current author = {current_author}')
-    logging.debug(type(current_author))
-
     current_user = User.objects.get(username=request.user)
-    logging.debug(f'current user = {current_user}')
-    logging.debug(type(current_user))
+    Follow.objects.filter(user=current_user, author=current_author).delete()
 
     return redirect('posts:profile', username=username)
