@@ -287,9 +287,6 @@ class PostsViewsTests(TestCase):
             path=reverse('posts:follow_index')
         )
         context = response.context
-        logging.debug('***********context***********')
-        logging.debug(context['page_obj'][0])
-        logging.debug(PostsViewsTests.post_with_group)
 
         self.assertEqual(len(context['page_obj']), initial_posts_num + 1)
         self.assertEqual(
