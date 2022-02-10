@@ -4,35 +4,35 @@
 {% block title %}Профиль пользователя{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  {% if author.get_full_name %}
-    <h1>Все посты пользователя {{ author.get_full_name }}</h1>
-  {% else %}
-    <h1>Все посты пользователя {{ author.username }}</h1>
-  {% endif %}
-  <h3>Всего постов: {{ posts.count }} </h3>
-  {% if author != user %}
-    {% if following %}
-      <a
-        class="btn btn-lg btn-light"
-        href="{% url 'posts:profile_unfollow' author.username %}" role="button"
-      >
-        Отписаться
-      </a>
+  <div class="container py-5">
+    {% if author.get_full_name %}
+      <h1>Все посты пользователя {{ author.get_full_name }}</h1>
     {% else %}
-      <a
-        class="btn btn-lg btn-primary"
-        href="{% url 'posts:profile_follow' author.username %}" role="button"
-      >
-        Подписаться
-      </a>
+      <h1>Все посты пользователя {{ author.username }}</h1>
     {% endif %}
-  {% endif %}
-  {% for post in page_obj %}
-    {% include 'includes/user_article.html' %}
-    <!-- no line under the last post -->
-    {% if not forloop.last %}<hr>{% endif %}
-  {% endfor %}
-  {% include 'posts/includes/paginator.html' %}
-</div>
+    <h3>Всего постов: {{ posts.count }} </h3>
+    {% if author != user %}
+      {% if following %}
+        <a
+          class="btn btn-lg btn-light"
+          href="{% url 'posts:profile_unfollow' author.username %}" role="button"
+        >
+          Отписаться
+        </a>
+      {% else %}
+        <a
+          class="btn btn-lg btn-primary"
+          href="{% url 'posts:profile_follow' author.username %}" role="button"
+        >
+          Подписаться
+        </a>
+      {% endif %}
+    {% endif %}
+    {% for post in page_obj %}
+      {% include 'includes/user_article.html' %}
+      <!-- no line under the last post -->
+      {% if not forloop.last %}<hr>{% endif %}
+    {% endfor %}
+    {% include 'posts/includes/paginator.html' %}
+  </div>
 {% endblock %}

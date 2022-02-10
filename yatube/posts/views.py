@@ -6,11 +6,6 @@ from .forms import PostForm, CommentForm
 
 POSTS_DSPL = 10
 
-import logging  # TODO delete logger before final commit
-logging.basicConfig(level=logging.DEBUG,
-                    filename='views.log',
-                    format='%(asctime)s | %(levelname)s | %(message)s')
-
 
 def index(request):
     template = 'posts/index.html'
@@ -50,7 +45,7 @@ def profile(request, username):
     title = ('Профиль пользователя ' + str(author.get_full_name()))
     try:
         current_user = User.objects.get(username=request.user)
-    except User.DoesNotExist:
+    except User.DoesNotExist:  # None for anonymous
         current_user = None
     if Follow.objects.filter(user=current_user, author=author):
         following = True
@@ -160,10 +155,6 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    # logging.debug(f'current user = {request.user}')
-    # logging.debug(f'current user = {str(request.user)}')
-    # logging.debug(f'current author = {username}')
-    # logging.debug(f'current author = {type(username)}')
     current_user = User.objects.get(username=request.user)
     author = get_object_or_404(User, username=username)
     if (username != str(request.user)

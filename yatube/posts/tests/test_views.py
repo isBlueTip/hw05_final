@@ -9,7 +9,7 @@ from django.urls import reverse
 from django import forms
 from django.core.cache import cache
 
-from ..models import Group, Post
+from ..models import Group, Post, Follow
 
 User = get_user_model()
 
@@ -40,6 +40,7 @@ class PostsViewsTests(TestCase):
             content_type='image/gif'
         )
         cls.user_1 = User.objects.create(username='Nikitka')
+        cls.user_2 = User.objects.create(username='Dyusha')
         cls.group_1 = Group.objects.create(
             title='Группа №16',
             description='Описание тестовой группы'
@@ -64,6 +65,8 @@ class PostsViewsTests(TestCase):
         self.guest_client = Client()
         self.authorised_client_1 = Client()
         self.authorised_client_1.force_login(PostsViewsTests.user_1)
+        self.authorised_client_2 = Client()
+        self.authorised_client_2.force_login(PostsViewsTests.user_2)
         cache.clear()
 
     def test_posts_views_use_correct_templates(self):
@@ -205,6 +208,7 @@ class PostsViewsTests(TestCase):
         self.assertEqual(post_image, 'posts/small.gif')
 
     def test_index_cache(self):
+        """Checking if posts:index page is cached"""
         initial_response = self.guest_client.get(
             path=reverse('posts:index')
         )
@@ -231,6 +235,74 @@ class PostsViewsTests(TestCase):
         new_content = new_response.content
 
         self.assertNotEqual(cached_content, new_content)
+
+    def test_authorised_can_follow(self):
+        """Checking if an authorised user is able
+         to follow a post author"""
+        following_before = Follow.objects.count()
+        self.authorised_client_2.get(
+            path=reverse(
+                'posts:profile_follow',
+                kwargs={'username': PostsViewsTests.user_1.username}
+            )
+        )
+
+        following_after = Follow.objects.count()
+        self.assertEqual(following_before + 1, following_after)
+
+    def test_authorised_can_unfollow(self):
+        """Checking if an authorised user is able
+         to unfollow a following author"""
+        self.authorised_client_2.get(
+            path=reverse(
+                'posts:profile_follow',
+                kwargs={'username': PostsViewsTests.user_1.username}
+            )
+        )
+        followings_before = Follow.objects.count()
+        self.authorised_client_2.get(
+            path=reverse(
+                'posts:profile_unfollow',
+                kwargs={'username': PostsViewsTests.user_1.username}
+            )
+        )
+
+        followings_after = Follow.objects.count()
+        self.assertEqual(followings_before - 1, followings_after)
+
+    def test_follow_index(self):
+        """Checking if an authorised user is able
+         to watch their followings on 'posts:follow_index'"""
+        # initial number of posts on user_2's follow_index
+        response = self.authorised_client_2.get(
+            path=reverse('posts:follow_index')
+        )
+        context = response.context
+        initial_posts_num = len(context['page_obj'])
+        self.assertEqual(initial_posts_num, 0)
+        # follow user_1
+        self.authorised_client_2.get(
+            path=reverse(
+                'posts:profile_follow',
+                kwargs={'username': PostsViewsTests.user_1.username}
+            )
+        )
+        # user_1's post is in user_2's follow_index
+        response = self.authorised_client_2.get(
+            path=reverse('posts:follow_index')
+        )
+        context = response.context
+        logging.debug('***********context***********')
+        logging.debug(context['page_obj'][0])
+        logging.debug(PostsViewsTests.post_with_group)
+
+        self.assertEqual(len(context['page_obj']), initial_posts_num + 1)
+        self.assertEqual(context['page_obj'][0], PostsViewsTests.post_with_group)
+
+        response = self.authorised_client_1.get(
+            path=reverse('posts:follow_index')
+        )
+        self.assertEqual(len(response.context['page_obj']), 0)
 
 
 class PaginatorViewsTests(TestCase):
