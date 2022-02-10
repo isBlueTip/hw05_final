@@ -15,11 +15,6 @@ User = get_user_model()
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
-import logging  # TODO delete logger before final commit
-logging.basicConfig(level=logging.DEBUG,
-                    filename='test_views.log',
-                    format='%(asctime)s | %(levelname)s | %(message)s')
-
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PostsViewsTests(TestCase):
@@ -297,7 +292,10 @@ class PostsViewsTests(TestCase):
         logging.debug(PostsViewsTests.post_with_group)
 
         self.assertEqual(len(context['page_obj']), initial_posts_num + 1)
-        self.assertEqual(context['page_obj'][0], PostsViewsTests.post_with_group)
+        self.assertEqual(
+            context['page_obj'][0],
+            PostsViewsTests.post_with_group
+        )
 
         response = self.authorised_client_1.get(
             path=reverse('posts:follow_index')
