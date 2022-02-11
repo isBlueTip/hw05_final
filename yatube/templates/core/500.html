@@ -3,5 +3,8 @@
 {% extends "base.html" %}
 {% block title %}Custom 500{% endblock %}
 {% block content %}
-    <h1>Custom 500</h1>
+  <h1>Custom 500</h1>
+  <p>На сервере произошла ошибка</p>
+  <p>Пожалуйста, попробуйте позже или</p>
+  <a href="{% url 'posts:index' %}"> идите на главную</a>
 {% endblock %}

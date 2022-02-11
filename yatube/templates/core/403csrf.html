@@ -4,4 +4,6 @@
 {% block title %}Custom CSRF check error{% endblock %}
 {% block content %}
   <h1>Custom CSRF check error. 403</h1>
+  <p>Неправильный запрос к сайту</p>
+  <a href="{% url 'posts:index' %}"> Идите на главную</a>
 {% endblock %}
