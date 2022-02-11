@@ -22,6 +22,10 @@ class Group(models.Model):
             self.slug = slugify(self.title)[:50]
         super().save(*args, **kwargs)
 
+    class Meta:
+        verbose_name = 'группа'
+        verbose_name_plural = 'группы'
+
 
 class Post(CreatedModel):
     text = models.TextField(
@@ -65,23 +69,33 @@ class Comment(CreatedModel):
         User,
         on_delete=models.CASCADE,
         related_name='comments',
-        verbose_name='Автор комментария',
+        verbose_name='автор комментария',
     )
     text = models.TextField(
         max_length=350,
-        verbose_name='комментарий к посту',
+        verbose_name='комментарий',
         help_text='Напишите свой комментарий',
     )
+
+    class Meta(CreatedModel.Meta):
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'комментарии'
 
 
 class Follow(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='follower'
+        related_name='follower',
+        verbose_name='кто подписался',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='following'
+        related_name='following',
+        verbose_name='на кого подписка',
     )
+
+    class Meta:
+        verbose_name = 'подписка'
+        verbose_name_plural = 'подписки'
