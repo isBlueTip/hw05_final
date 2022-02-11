@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.test import TestCase, Client
 
 
@@ -14,7 +16,7 @@ class AboutURLTests(TestCase):
         for address in about_urls:
             with self.subTest(address=address):
                 response = self.guest_client.get(address)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_about_urls_use_correct_template(self):
         """Checking correct templates usage of 'about' app."""
