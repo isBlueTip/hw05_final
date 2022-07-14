@@ -15,8 +15,8 @@ python3 manage.py makemigrations
 python3 manage.py migrate
 python3 manage.py createsuperuser --email admin@admin.com --username admin -v 3
 ```
-Задайте пароль для суперпользователя. Логин суперпользователя - admin. При заполнении БД тестовыми данными, суперпользователь уже создан. `Login: admin, pass: admin`
-Затем
+Задайте пароль для суперпользователя. Логин суперпользователя - admin. При заполнении БД тестовыми данными, суперпользователь уже создан. `Login: admin, pass: admin`  
+Затем запустите сервер:
 ```Bash
 python3 manage.py runserver
 ```
