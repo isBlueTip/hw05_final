@@ -9,7 +9,7 @@
 В папке склонированного репозитория выполните:
 
 ```bash
-pip instal -r requirements.txt 
+pip install -r requirements.txt 
 cd yatube
 python3 manage.py makemigrations
 python3 manage.py migrate
