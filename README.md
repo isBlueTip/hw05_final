@@ -1,6 +1,6 @@
-# Проект соцсети Yatube
+# Соцсеть Yatube
 
-## Описание проекта
+## Описание
 
 Проект по созданию соцсети с возможностью регистрации, создания групп, постов с картинками, подписок на любимых авторов и комментирования. Данные для однотипных запросов кешируются, большая часть проекта покрыта Unit-тестами
 
@@ -42,5 +42,5 @@ Django, Django ORM, Unittle 'auth_est, OOP, django-debug-toolbar
 Семён Егоров
 
 [LinkedIn](https://www.linkedin.com/in/simonegorov/)  
-[Email](rhinorofl@gmail.com)  
+[Email](simon.egorov.job@gmail.com)  
 [Telegram](https://t.me/SamePersoon)
